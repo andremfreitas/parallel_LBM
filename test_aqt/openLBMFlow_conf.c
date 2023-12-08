@@ -4,7 +4,7 @@
 // open@lbmflow.com
 
 //Default configuration is 3D Schan-Chen Multiphase model
-// #define Lattice3D  // delete this line for 2D code
+#define Lattice3D  // delete this line for 2D code
 //#define MultiPhase // delete this line for Singlephase code
 
 // initial paramaters

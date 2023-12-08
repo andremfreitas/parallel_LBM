@@ -73,12 +73,12 @@ void initialize_density(double density);
 void initialize_distrFunc();
 void finalise();
 void initialize_droplet(int dx, int dy, int dz, int dr, int drop);
-void update();
+void update(); // <-------------
 void streaming(int x, int y, int z);
 void boundary(int x, int y, int z);
 void streaming_boundary(int x, int y, int z);
 void equlibrium();
-void outputSave();
+void outputSave(); // <-------------
 void massConservation();
 void writeVTK(int t, int nx, int ny, int nz, double ***rho, int write_rho, double ***pre, int write_pre, double ***ux, double ***uy, double ***uz, int write_vel, char *directory, char *filename);
 void write_collection_pvd(int t, int nx, int ny, int nz, double ***array, char *directory, char *filename);
@@ -102,17 +102,18 @@ int main(int argc, char **argv)
 {
     printf("openLBMflow v1.0.0 (c) 2010 www.lbmflow.com\n");
 
+/////////////////////////////////////////////////////////////////////////////////////
+// Initialization
     printf("\n");
     printf("**********************************************\n");
     printf("Start initialization\n");
 
     double t_init = stop_watch(0);
-
     initialize_memory();
     initialize_boundary(boundary_bot, boundary_top, boundary_lef, boundary_rig, boundary_fro, boundary_bac, rho_boundary);
     initialize_density( rhol );
-    if (d1r>0) initialize_droplet(d1x, d1y, d1z, d1r, drop1);  //droplet 1
-    if (d2r>0) initialize_droplet(d2x, d2y, d2z, d2r, drop2);  //droplet 2
+    // if (d1r>0) initialize_droplet(d1x, d1y, d1z, d1r, drop1);  //droplet 1
+    // if (d2r>0) initialize_droplet(d2x, d2y, d2z, d2r, drop2);  //droplet 2
     //droplet 3 initialize_droplet(dx, dy, dz, dr, drop);
     initialize_distrFunc();
 
@@ -128,6 +129,8 @@ int main(int argc, char **argv)
     printf("\n");
     printf("**********************************************\n");
     printf("Running simulation...\n");
+
+/////////////////////////////////////////////////////////////////////////////////////
 
     double t_run = stop_watch(0);
 
@@ -366,10 +369,11 @@ void initialize_droplet(int dx, int dy, int dz, int dr, int drop)
 
 void update()
 {
-  //Calculate rho, u,v
-  for (x=0; x<nx; x++) {
-    for (y=0; y<ny; y++) {
-      for (z=0; z<nz; z++) {
+//////////////////////////////////////////////////////////////////////////////////
+  //Calculate rho, u,v (macroscopic moments evaluation)
+  for (x=0; x<nx; x++) {  // <------------- Parallelize
+    for (y=0; y<ny; y++) { // <------------- Parallelize
+      for (z=0; z<nz; z++) { // <------------- Parallelize
           if (solid[x][y][z]==0) {
             //calculate rho and ux, uy
 #ifdef Lattice3D
@@ -408,12 +412,13 @@ void update()
       }
     }
   }
+//////////////////////////////////////////////////////////////////////////////////
 
-    for (x=0; x<nx; x++)
+    for (x=0; x<nx; x++) // <------------- Parallelize
     {
-        for (y=0; y<ny; y++)
+        for (y=0; y<ny; y++) // <------------- Parallelize
         {
-            for (z=0; z<nz; z++)
+            for (z=0; z<nz; z++) // <------------- Parallelize
             {
                 if (solid[x][y][z]==0)
                 {
@@ -432,35 +437,35 @@ void update()
 #ifdef Lattice3D
                     tmp_uz  = uz[x][y][z];
 #endif
-                    // calculate gradient psi-gradient
-                    grad_phi_x = (phi[rig][y][z]-phi[lef][y][z])/w1;
-                    grad_phi_y = (phi[x][top][z]-phi[x][bot][z])/w1;
-                    grad_phi_x+= (phi[rig][top][z]-phi[lef][top][z]+phi[rig][bot][z]-phi[lef][bot][z])/w2;
-                    grad_phi_y+= (phi[rig][top][z]+phi[lef][top][z]-phi[lef][bot][z]-phi[rig][bot][z])/w2;
-#ifdef Lattice3D
-                    // 3d part
-                    grad_phi_z = (phi[x][y][bac]-phi[x][y][fro])/w1;
-                    grad_phi_z+= (phi[rig][y][bac]+phi[lef][y][bac]-phi[lef][y][fro]-phi[rig][y][fro])/w2;
-                    grad_phi_x+= (phi[rig][y][bac]-phi[lef][y][bac]+phi[rig][y][fro]-phi[lef][y][fro])/w2;
-                    grad_phi_y+= (phi[x][top][bac]+phi[x][top][fro]-phi[x][bot][bac]-phi[x][bot][fro])/w2;
-                    grad_phi_z+= (phi[x][top][bac]+phi[x][bot][bac]-phi[x][bot][fro]-phi[x][top][fro])/w2;
-#endif
-                    // interparticule potential in equilibrium velocity
-                    tmp_ux += tau*(-G*tmp_phi*grad_phi_x)/tmp_rho;
-                    tmp_uy += tau*(-G*tmp_phi*grad_phi_y)/tmp_rho;
-#ifdef Lattice3D
-                    tmp_uz += tau*(-G*tmp_phi*grad_phi_z)/tmp_rho;
-#endif
+//                     // calculate gradient psi-gradient
+//                     grad_phi_x = (phi[rig][y][z]-phi[lef][y][z])/w1;
+//                     grad_phi_y = (phi[x][top][z]-phi[x][bot][z])/w1;
+//                     grad_phi_x+= (phi[rig][top][z]-phi[lef][top][z]+phi[rig][bot][z]-phi[lef][bot][z])/w2;
+//                     grad_phi_y+= (phi[rig][top][z]+phi[lef][top][z]-phi[lef][bot][z]-phi[rig][bot][z])/w2;
+// #ifdef Lattice3D
+//                     // 3d part
+//                     grad_phi_z = (phi[x][y][bac]-phi[x][y][fro])/w1;
+//                     grad_phi_z+= (phi[rig][y][bac]+phi[lef][y][bac]-phi[lef][y][fro]-phi[rig][y][fro])/w2;
+//                     grad_phi_x+= (phi[rig][y][bac]-phi[lef][y][bac]+phi[rig][y][fro]-phi[lef][y][fro])/w2;
+//                     grad_phi_y+= (phi[x][top][bac]+phi[x][top][fro]-phi[x][bot][bac]-phi[x][bot][fro])/w2;
+//                     grad_phi_z+= (phi[x][top][bac]+phi[x][bot][bac]-phi[x][bot][fro]-phi[x][top][fro])/w2;
+// #endif
+//                     // interparticule potential in equilibrium velocity
+//                     tmp_ux += tau*(-G*tmp_phi*grad_phi_x)/tmp_rho;
+//                     tmp_uy += tau*(-G*tmp_phi*grad_phi_y)/tmp_rho;
+// #ifdef Lattice3D
+//                     tmp_uz += tau*(-G*tmp_phi*grad_phi_z)/tmp_rho;
+// #endif
 
-#else //SinglePhase
-                    bot = (y+ny-1)%ny;
-                    top = (y+1)%ny;
-                    lef = (x+nx-1)%nx;
-                    rig = (x+1)%nx;
-#ifdef Lattice3D
-                    fro = (z+nz-1)%nz;
-                    bac = (z+1)%nz;
-#endif
+// #else //SinglePhase
+//                     bot = (y+ny-1)%ny;
+//                     top = (y+1)%ny;
+//                     lef = (x+nx-1)%nx;
+//                     rig = (x+1)%nx;
+//     #ifdef Lattice3D
+//                         fro = (z+nz-1)%nz;
+//                         bac = (z+1)%nz;
+//     #endif
 
 #endif //end Single/Multi Phase
 
@@ -481,7 +486,8 @@ void update()
                     uxy = 2.0*tmp_ux*tmp_uy;
                     uxz = 2.0*tmp_ux*tmp_uz;
                     uyz = 2.0*tmp_uy*tmp_uz;
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////                    
+// Collision step
                     tmp_fn[0] = fp[x][y][z][0] - (fp[x][y][z][0] - (wi[0]*tmp_rho*(1.0 - 1.5*uxyz2)))/tau;
                     tmp_fn[1] = fp[x][y][z][1] - (fp[x][y][z][1] - (wi[1]*tmp_rho*(1.0 + 3.0*tmp_ux             + 4.5*ux2        - 1.5*uxyz2)))/tau;
                     tmp_fn[2] = fp[x][y][z][2] - (fp[x][y][z][2] - (wi[2]*tmp_rho*(1.0 + 3.0*(+tmp_ux+tmp_uy)   + 4.5*(uxy2+uxy) - 1.5*uxyz2)))/tau;
@@ -503,13 +509,14 @@ void update()
                     tmp_fn[17] = fp[x][y][z][17] - (fp[x][y][z][17] - (wi[17]*tmp_rho*(1.0 + 3.0*(-tmp_ux-tmp_uz)   + 4.5*(uxz2+uxz) - 1.5*uxyz2)))/tau;
                     tmp_fn[18] = fp[x][y][z][18] - (fp[x][y][z][18] - (wi[18]*tmp_rho*(1.0 + 3.0*(+tmp_ux-tmp_uz)   + 4.5*(uxz2-uxz) - 1.5*uxyz2)))/tau;
 #endif
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Streaming step
                     streaming(x, y, z);
                 }
             }
         }
     }
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
     for (x=0; x<nx; x++)
     {
         for (y=0; y<ny; y++)
@@ -530,6 +537,8 @@ void update()
     fn  = tmp_f;
 }
 
+/////////////////////////////////////////////////////////////////////////////
+// Already fine for parallel evaluation (Called inside update())
 void streaming(int x, int y, int z)
 {
     top = (y+1)%ny;
@@ -564,6 +573,8 @@ void streaming(int x, int y, int z)
 #endif
 }
 
+/////////////////////////////////////////////////////////////////////////////
+// Already fine for parallel evaluation (Called inside update())
 void boundary(int x, int y, int z)
 {
     // Half-Way bounce back
@@ -617,6 +628,8 @@ void boundary(int x, int y, int z)
 #endif
 }
 
+/////////////////////////////////////////////////////////////////////////////
+// Already fine for parallel evaluation (Called inside update())
 void streaming_boundary(int x, int y, int z)
 {
     top = (y+1)%ny;
@@ -651,7 +664,8 @@ void streaming_boundary(int x, int y, int z)
 #endif
 }
 
-
+/////////////////////////////////////////////////////////////////////////////
+// Already fine
 int*** init_mem_int3d(int nx, int ny, int nz)
 {
     int ***p; /*declaration of p as: pointer-to-pointer-to-pointer of int */
@@ -660,17 +674,17 @@ int*** init_mem_int3d(int nx, int ny, int nz)
     p = malloc( nx * sizeof(*p) ); /*Allocate pointers for the nx */
     if (p != NULL)
     {
-        for (x = 0; x < nx; x++)
+        for (x = 0; x < nx; x++) // <------------- Parallelize
         {
             p[x] = malloc( ny * sizeof **p );/*Allocate pointers for the ny */
             if (p[x] == NULL)
-            {
+                    {
                 printf("Memory allocation failed. Exiting....");
                 //return (1);
             }
             else
             {
-                for (y = 0; y < ny; y++)
+                for (y = 0; y < ny; y++) // <------------- Parallelize
                 {
                     p[x][y] = malloc( nz * sizeof ***p ); /*Allocate pointers for the nz */
                     if (p[x][y] == NULL)
@@ -690,7 +704,7 @@ int*** init_mem_int3d(int nx, int ny, int nz)
     return p;
 }
 
-
+// Already fine
 double*** init_mem_float3d(int nx, int ny, int nz)
 {
     double ***p; /*declaration of p as: pointer-to-pointer-to-pointer of int */
@@ -729,7 +743,7 @@ double*** init_mem_float3d(int nx, int ny, int nz)
     return p;
 }
 
-
+// Already fine
 double**** init_mem_float4d(int nx, int ny, int nz, int nu)
 {
     double ****p; /*declaration of p as: pointer-to-pointer-to-pointer of int */
@@ -781,12 +795,19 @@ double**** init_mem_float4d(int nx, int ny, int nz, int nu)
 
 }
 
+///////////////////////////////////////////////////////////////////////////
+// Definetely not fine: either use MPI_Gather or have the different processes write to file their parts
 void outputSave()
 {
-    writeVTK(t, nx, ny, nz, &rho[0], save_rho, &rho[0], save_pre, &ux[0], &uy[0], &uz[0], save_vel, "output", "openLBMflow");
+    /* TO-DO: Define a parameter in config file to save VTK format or not */
+    // if (vtk)
+        writeVTK(t, nx, ny, nz, &rho[0], save_rho, &rho[0], save_pre, &ux[0], &uy[0], &uz[0], save_vel, "output", "openLBMflow");
 
     //check mass conservation for debug only
-    // massConservation();
+    // To be parallelized (but it's needed only for debug)
+    /* Idea: just specify the rank of the process that prints this
+        e.g.: if(rank == 0) */
+    massConservation();
 
     //Calculate Mega Lattice Site Update per second MLSU/s
     Speed = (nx*ny*nz)*(t-step_now)/((clock() - time_now)/CLOCKS_PER_SEC)/1000000.0;
@@ -795,6 +816,7 @@ void outputSave()
     if (mass == 0) printf("t=%d\tSpeed=%f MLUP/s\n", t, Speed);
     else printf("t=%d\tSpeed=%f MLUP/s mass=%f\n", t, Speed, mass);
 }
+
 
 void massConservation()
 {
