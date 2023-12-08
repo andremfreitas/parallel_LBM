@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!-- openLBMflow v1.0.1, www.lbmflow.com -->
+<VTKFile type="Collection" version="0.1" byte_order="LittleEndian">
+  <Collection>
+    <DataSet  timestep="0" group="" part="0" file="openLBMflow_0000000.vti"/>
+    <DataSet  timestep="100" group="" part="0" file="openLBMflow_0000100.vti"/>
+    <DataSet  timestep="200" group="" part="0" file="openLBMflow_0000200.vti"/>
+    <DataSet  timestep="300" group="" part="0" file="openLBMflow_0000300.vti"/>
+    <DataSet  timestep="400" group="" part="0" file="openLBMflow_0000400.vti"/>
+    <DataSet  timestep="500" group="" part="0" file="openLBMflow_0000500.vti"/>
+    <DataSet  timestep="600" group="" part="0" file="openLBMflow_0000600.vti"/>
+    <DataSet  timestep="700" group="" part="0" file="openLBMflow_0000700.vti"/>
+    <DataSet  timestep="800" group="" part="0" file="openLBMflow_0000800.vti"/>
+    <DataSet  timestep="900" group="" part="0" file="openLBMflow_0000900.vti"/>
+    <DataSet  timestep="1000" group="" part="0" file="openLBMflow_0001000.vti"/>
+  </Collection>
+</VTKFile>
