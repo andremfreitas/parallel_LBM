@@ -123,9 +123,8 @@ int main(int argc, char **argv)
     int periodical[2] = {0, 0};
     reorder = 0;
 
-    MPI_Cart_create(MPI_COMM_WORLD, 2, dim, periodical, reorder, &cart_comm);
-    MPI_Cart_coords(cart_comm, rank, 2, coord);
-
+    // MPI_Cart_create(MPI_COMM_WORLD, 2, dim, periodical, reorder, &cart_comm);
+    // MPI_Cart_coords(cart_comm, rank, 2, coord);
 
     printf("rank %d x %d y %d\n", rank, coord[0], coord[1]);
 
@@ -183,18 +182,19 @@ int main(int argc, char **argv)
     }
 
     t_run = stop_watch(t_run);
-//if ()
+    
     if (rank == MASTER)
     {
         printf("\n");
         printf("**********************************************\n");
         printf("Completed! t_run = %lf sec \n", t_run); // Notice: this time doesn't include initialization
     }
+
+    MPI_Finalize();
+
     finalise(); //free allocated memory
     return 0; //exit program
 }
-
-
 
 
 void initialize_memory()
@@ -839,14 +839,17 @@ void outputSave()
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &procs);
     /* TO-DO: Define a parameter in config file to save VTK format or not */
-    // if (vtk)
+    #ifdef VTK
         writeVTK(t, nx, ny, nz, &rho[0], save_rho, &rho[0], save_pre, &ux[0], &uy[0], &uz[0], save_vel, "output", "openLBMflow");
-
+    #endif
     //check mass conservation for debug only
     // To be parallelized (but it's needed only for debug)
     /* Idea: just specify the rank of the process that prints this
         e.g.: if(rank == 0) */
-    massConservation();
+    #ifdef MASS
+        if(rank == MASTER)
+            massConservation();
+    #endif
 
     //Calculate Mega Lattice Site Update per second MLSU/s
     Speed = (nx*ny*nz)*(t-step_now)/((clock() - time_now)/CLOCKS_PER_SEC)/1000000.0;
