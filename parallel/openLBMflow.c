@@ -118,13 +118,14 @@ int main(int argc, char **argv)
     MPI_Comm_size(MPI_COMM_WORLD, &procs);
 
     
-    int dim[2] = {2, 2};
+    int dim[2] = {1,2};
     
-    int periodical[2] = {0, 0};
+    int periodical[2] = {1,0};
+
     reorder = 0;
 
-    // MPI_Cart_create(MPI_COMM_WORLD, 2, dim, periodical, reorder, &cart_comm);
-    // MPI_Cart_coords(cart_comm, rank, 2, coord);
+     MPI_Cart_create(MPI_COMM_WORLD, 2, dim, periodical, reorder, &cart_comm);
+     MPI_Cart_coords(cart_comm, rank, 2, coord);
 
     printf("rank %d x %d y %d\n", rank, coord[0], coord[1]);
 

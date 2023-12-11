@@ -4,9 +4,9 @@
 // open@lbmflow.com
 
 //Default configuration is 3D Schan-Chen Multiphase model
-#define Lattice3D  // comment this line for 2D code
-#define MultiPhase // comment this line for Singlephase code
-#define VTK        // comment this line to prevent VTK file production
+//#define Lattice3D  // comment this line for 2D code
+//#define MultiPhase // comment this line for Singlephase code
+//#define VTK        // comment this line to prevent VTK file production
 #define MASS       // comment this line to prevent VTK file production
 
 // initial paramaters
