@@ -1,12 +1,13 @@
-============================================================================
-Parallel extension of openLBMflow (http://www.lbmflow.com/)
-----------------------------------------------------------------------------
+==============================================================
+Parallel extension of openLBMflow (https://github.com/wme7/openLBMflow)
+--------------------------------------------------------------
 Project #3 of AQTIVATE workshop "Exascale computing and scalable algorithms”.
 
 Developed by André Freitas, Elisa Bellantoni and Francesco Fossella.
 
 The authors acknowledge the European Union’s HORIZON MSCA Doctoral Networks programme and the AQTIVATE project for the development of this project.
-----------------------------------------------------------------------------
+
+--------------------------------------------------------------
 
 The following instructions are the same as those of the original code. It should be noted that the makefiles for the different parallel implementations have different flags and compilers w.r.t. the original openLBMflow so that MPI and OpenMP executions are possible.
 
