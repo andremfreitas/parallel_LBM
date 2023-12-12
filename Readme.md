@@ -1,12 +1,14 @@
-openLBMflow v1.0.1 Copyright (C) 2013 LBMflow
-=============================================
-Open Source 2D/3D single and multiphase Lattice Boltzmann Code
---------------------------------------------------------------
+============================================================================
+Parallel extension of openLBMflow (http://www.lbmflow.com/)
+----------------------------------------------------------------------------
+Project #3 of AQTIVATE workshop "Exascale computing and scalable algorithms”.
 
-The most recent release of openLBMflow can be downloaded at http://www.lbmflow.com/ or to the Email open@lbmflow.
+Developed by André Freitas, Elisa Bellantoni and Francesco Fossella.
 
-Version 1.0.1
-Release Date: 06 August 2013
+The authors acknowledge the European Union’s HORIZON MSCA Doctoral Networks programme and the AQTIVATE project for the development of this project.
+----------------------------------------------------------------------------
+
+The following instructions are the same as those of the original code. It should be noted that the makefiles for the different parallel implementations have different flags and compilers w.r.t. the original openLBMflow so that MPI and OpenMP executions are possible.
 
 CONTENTS:
 	1. What is openLBMflow
@@ -38,6 +40,8 @@ CONTENTS:
 	Command Line:
 	To compile the solver from command line use:
 	gcc -O2 -o openLBMflow openLBMflow.c -lm
+
+	NOTICE: the flag -fopenmp must be added to run with OpenMP
 
 	Linux:
 	Under Linux just use make function in shell to compile the code
