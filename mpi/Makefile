@@ -27,13 +27,13 @@ CC     = mpicc
 CFLAGS = -O2 
 LIBS   = -lm
 DEPS   =
-OBJ    = openLBMflow.o
+OBJ    = LBM-mpi.o
 ARG    = *.c
 
 %.o: %.c $(DEPS)
 	$(CC) $(CFLAGS) -c $^ -o $@ 
 
-openLBMflow:$(OBJ)
+LBM-mpi:$(OBJ)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
 clean:

@@ -38,7 +38,7 @@
 
 
 //include file with initial parameters
-#include "openLBMFlow_conf.c"
+#include "LBM-omp_conf.c"
 
 
 //define lattice constants D3Q19 1/3 1/18 1/36, D2Q9 4/9 1/9 1/36
@@ -206,7 +206,7 @@ void initialize_memory()
 void initialize_boundary(int boundary_bot, int boundary_top, int boundary_lef, int boundary_rig, int boundary_fro, int boundary_bac, double rho_boundary)
 {
     ///Initialize type of nodes
-//  #pragma omp parallel for collapse(3)  
+ #pragma omp parallel for collapse(3)  
     for (x=0; x<nx; x++)
     {
         for (y=0; y<ny; y++)
@@ -219,7 +219,7 @@ void initialize_boundary(int boundary_bot, int boundary_top, int boundary_lef, i
     }
 
     ///Define Bounce Back Boundary
-//#pragma omp parallel for collapse(2)  
+#pragma omp parallel for collapse(3)  
     for (x=0; x<nx; x++)
     {
         for (z=0; z<nz; z++)
@@ -250,7 +250,7 @@ void initialize_boundary(int boundary_bot, int boundary_top, int boundary_lef, i
             }
         }
     }
-//#pragma omp parallel for collapse(2)  
+#pragma omp parallel for collapse(3)  
     for (y=0; y<ny; y++)
     {
         for (z=0; z<nz; z++)
@@ -269,7 +269,7 @@ void initialize_boundary(int boundary_bot, int boundary_top, int boundary_lef, i
             }
         }
     }
-//#pragma omp parallel for collapse(2)  
+#pragma omp parallel for collapse(3)  
     for (x=0; x<nx; x++)
     {
         for (y=0; y<ny; y++)
@@ -292,7 +292,7 @@ void initialize_boundary(int boundary_bot, int boundary_top, int boundary_lef, i
 
 void initialize_density(double density)
 {
-//#pragma omp parallel for collapse(3)      
+#pragma omp parallel for collapse(3)      
     for (x=0; x<nx; x++)
     {
         for (y=0; y<ny; y++)
@@ -321,7 +321,7 @@ void initialize_distrFunc()
     tmp_uz = 0.0;
 
 
-//#pragma omp parallel for collapse(3)  
+#pragma omp parallel for collapse(3)  
     for (x=0; x<nx; x++)
     {
         for (y=0; y<ny; y++)
@@ -389,8 +389,6 @@ void update()
   //Calculate rho, u,v (macroscopic moments evaluation)
 
 #pragma omp parallel for collapse(3) 
-//#pragma omp parallel for
-//#pragma omp parallel for schedule(dynamic) num_threads(THREADS)
   for (x=0; x<nx; x++) {  // <------------- Parallelize
     for (y=0; y<ny; y++) { // <------------- Parallelize 
       for (z=0; z<nz; z++) { // <------------- Parallelize
@@ -434,7 +432,6 @@ void update()
   }
 //////////////////////////////////////////////////////////////////////////////////
 #pragma omp parallel for collapse(3)  
-//#pragma omp parallel for
     for (x=0; x<nx; x++) // <------------- Parallelize
     {
         for (y=0; y<ny; y++) // <------------- Parallelize
@@ -538,7 +535,7 @@ void update()
         }
     }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-//#pragma omp parallel for collapse(3)   
+#pragma omp parallel for collapse(3)   
     for (x=0; x<nx; x++)
     {
         for (y=0; y<ny; y++)
@@ -835,8 +832,11 @@ void outputSave()
     Speed = (nx*ny*nz)*(t-step_now)/((clock() - time_now)/CLOCKS_PER_SEC)/1000000.0;
     step_now = t;
     time_now = clock();
-    if (mass == 0) printf("t=%d\tSpeed=%f MLUP/s\n", t, Speed);
-    else printf("t=%d\tSpeed=%f MLUP/s mass=%f\n", t, Speed, mass);
+    if (mass == 0) 
+        printf("t=%d\tSpeed=%f MLUP/s\n", t, Speed);
+    else 
+        printf("t=%d\tSpeed=%f MLUP/s mass=%f\n", t, Speed, mass);
+
 }
 
 
@@ -844,7 +844,6 @@ void massConservation()
 {
   mass = 0.0;
 #pragma omp parallel for collapse(3) reduction(+:mass)
-//#pragma omp parallel
   for (x=0; x<nx; x++) {
     for (y=0; y<ny; y++) {
       for (z=0; z<nz; z++) {

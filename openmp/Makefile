@@ -27,13 +27,13 @@ CC     = gcc
 CFLAGS = -O3 -fopenmp  
 LIBS   = -lm
 DEPS   =
-OBJ    = openLBMflow.o
+OBJ    = LBM-omp.o
 ARG    = *.c
 
 %.o: %.c $(DEPS)
 	$(CC) $(CFLAGS) -c $^ -o $@ 
 
-openLBMflow:$(OBJ)
+LBM-omp:$(OBJ)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
 clean:

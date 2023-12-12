@@ -36,7 +36,7 @@
 
 
 //include file with initial parameters
-#include "openLBMFlow_conf.c"
+#include "LBM-mpi_conf.c"
 
 
 //define lattice constants D3Q19 1/3 1/18 1/36, D2Q9 4/9 1/9 1/36
