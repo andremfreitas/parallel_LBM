@@ -219,7 +219,7 @@ void initialize_boundary(int boundary_bot, int boundary_top, int boundary_lef, i
     }
 
     ///Define Bounce Back Boundary
-#pragma omp parallel for collapse(3)  
+#pragma omp parallel for collapse(2)  
     for (x=0; x<nx; x++)
     {
         for (z=0; z<nz; z++)
@@ -250,7 +250,7 @@ void initialize_boundary(int boundary_bot, int boundary_top, int boundary_lef, i
             }
         }
     }
-#pragma omp parallel for collapse(3)  
+#pragma omp parallel for collapse(2)  
     for (y=0; y<ny; y++)
     {
         for (z=0; z<nz; z++)
@@ -269,7 +269,7 @@ void initialize_boundary(int boundary_bot, int boundary_top, int boundary_lef, i
             }
         }
     }
-#pragma omp parallel for collapse(3)  
+#pragma omp parallel for collapse(2)  
     for (x=0; x<nx; x++)
     {
         for (y=0; y<ny; y++)
