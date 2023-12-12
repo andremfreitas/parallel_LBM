@@ -31,6 +31,10 @@
 #include <sys/time.h>
 #include <string.h>
 #include <dirent.h>
+#include <omp.h>
+
+//#define THREADS 2
+
 
 
 //include file with initial parameters
@@ -101,6 +105,13 @@ stop_watch(double t0)
 int main(int argc, char **argv)
 {
     printf("openLBMflow v1.0.0 (c) 2010 www.lbmflow.com\n");
+
+    #pragma omp parallel
+  {
+    int nthr = omp_get_num_threads();
+    #pragma omp single
+    printf("N_thr = %2d\n", nthr);
+  }
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Initialization
@@ -195,6 +206,7 @@ void initialize_memory()
 void initialize_boundary(int boundary_bot, int boundary_top, int boundary_lef, int boundary_rig, int boundary_fro, int boundary_bac, double rho_boundary)
 {
     ///Initialize type of nodes
+//  #pragma omp parallel for collapse(3)  
     for (x=0; x<nx; x++)
     {
         for (y=0; y<ny; y++)
@@ -207,6 +219,7 @@ void initialize_boundary(int boundary_bot, int boundary_top, int boundary_lef, i
     }
 
     ///Define Bounce Back Boundary
+//#pragma omp parallel for collapse(2)  
     for (x=0; x<nx; x++)
     {
         for (z=0; z<nz; z++)
@@ -237,7 +250,7 @@ void initialize_boundary(int boundary_bot, int boundary_top, int boundary_lef, i
             }
         }
     }
-
+//#pragma omp parallel for collapse(2)  
     for (y=0; y<ny; y++)
     {
         for (z=0; z<nz; z++)
@@ -256,7 +269,7 @@ void initialize_boundary(int boundary_bot, int boundary_top, int boundary_lef, i
             }
         }
     }
-
+//#pragma omp parallel for collapse(2)  
     for (x=0; x<nx; x++)
     {
         for (y=0; y<ny; y++)
@@ -279,6 +292,7 @@ void initialize_boundary(int boundary_bot, int boundary_top, int boundary_lef, i
 
 void initialize_density(double density)
 {
+//#pragma omp parallel for collapse(3)      
     for (x=0; x<nx; x++)
     {
         for (y=0; y<ny; y++)
@@ -306,6 +320,8 @@ void initialize_distrFunc()
     tmp_uy = 0.0;
     tmp_uz = 0.0;
 
+
+//#pragma omp parallel for collapse(3)  
     for (x=0; x<nx; x++)
     {
         for (y=0; y<ny; y++)
@@ -372,9 +388,11 @@ void update()
 //////////////////////////////////////////////////////////////////////////////////
   //Calculate rho, u,v (macroscopic moments evaluation)
 
-#pragma omp parallel for collapse(3)  
+#pragma omp parallel for collapse(3) 
+//#pragma omp parallel for
+//#pragma omp parallel for schedule(dynamic) num_threads(THREADS)
   for (x=0; x<nx; x++) {  // <------------- Parallelize
-    for (y=0; y<ny; y++) { // <------------- Parallelize
+    for (y=0; y<ny; y++) { // <------------- Parallelize 
       for (z=0; z<nz; z++) { // <------------- Parallelize
           if (solid[x][y][z]==0) {
             //calculate rho and ux, uy
@@ -415,7 +433,8 @@ void update()
     }
   }
 //////////////////////////////////////////////////////////////////////////////////
-#pragma omp parallel for collapse(3) 
+#pragma omp parallel for collapse(3)  
+//#pragma omp parallel for
     for (x=0; x<nx; x++) // <------------- Parallelize
     {
         for (y=0; y<ny; y++) // <------------- Parallelize
@@ -519,6 +538,7 @@ void update()
         }
     }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//#pragma omp parallel for collapse(3)   
     for (x=0; x<nx; x++)
     {
         for (y=0; y<ny; y++)
@@ -823,7 +843,8 @@ void outputSave()
 void massConservation()
 {
   mass = 0.0;
-  #pragma omp parallel for collapse(3) reduction(+:mass)
+#pragma omp parallel for collapse(3) reduction(+:mass)
+//#pragma omp parallel
   for (x=0; x<nx; x++) {
     for (y=0; y<ny; y++) {
       for (z=0; z<nz; z++) {
