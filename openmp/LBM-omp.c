@@ -1,28 +1,3 @@
-// openLBMflow v1.0.1 Copyright (C) 2013 LBMflow
-// Open Source Lattice Boltzmann Solver
-// www.lbmflow.com
-// open@lbmflow.com
-
-// LICENSE
-// The openLBMflow code is free software: you can redistribute it and/or
-// modify it under the terms of the GNU General Public License as
-// published by the Free Software Foundation, either version 3 of the
-// License, or (at your option) any later version.
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-// DISCLAIMER OF WARRANTY
-// The code is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// This software may contain errors that could cause failures or loss of data,
-// and may be incomplete or contain inaccuracies.  You expressly acknowledge and agree
-// that use of the openLBMflow software is at your sole risk.
-// The openLBMflow software is provided 'AS IS' and without warranty of any kind.
-
-// To comile use: gcc -O2 -o openLBMflow openLBMflow.c -lm
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -32,9 +7,6 @@
 #include <string.h>
 #include <dirent.h>
 #include <omp.h>
-
-//#define THREADS 2
-
 
 
 //include file with initial parameters
@@ -104,22 +76,25 @@ stop_watch(double t0)
 
 int main(int argc, char **argv)
 {
+    printf("**********************************************\n");
+    printf("\n");
     printf("openLBMflow v1.0.0 (c) 2010 www.lbmflow.com\n");
+    printf("\n");
+    printf("----------------------------------------------\n");  
 
     #pragma omp parallel
   {
     int nthr = omp_get_num_threads();
     #pragma omp single
-    printf("N_thr = %2d\n", nthr);
+    // printf("N_thr = %2d\n", nthr);
+    printf("Start initialization with %d #threads...\n", nthr);
   }
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Initialization
-    printf("\n");
-    printf("**********************************************\n");
-    printf("Start initialization\n");
-
-    double t_init = stop_watch(0);
+  
+    double t0 = stop_watch(0);
+    double t_init = t0;
     initialize_memory();
     initialize_boundary(boundary_bot, boundary_top, boundary_lef, boundary_rig, boundary_fro, boundary_bac, rho_boundary);
     initialize_density( rhol );
@@ -131,15 +106,12 @@ int main(int argc, char **argv)
     t_init = stop_watch(t_init);
     
     printf("\n");
-    printf("**********************************************\n");
+    printf("----------------------------------------------\n");    
     printf("\n");
     printf("Initialization completed! t_init = %lf sec \n", t_init);
     printf("\n");
-    printf("**********************************************\n");
-
-    printf("\n");
-    printf("**********************************************\n");
     printf("Running simulation...\n");
+    printf("----------------------------------------------\n");    printf("\n");
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -160,16 +132,17 @@ int main(int argc, char **argv)
         }
     }
 
-    t_run = stop_watch(t_run);
+    // t_run = stop_watch(t_run);
+    t_run = stop_watch(t0);
 
     printf("\n");
+    printf("----------------------------------------------\n");
+    printf("Completed! t_run = %lf sec \n", t_run); // Notice: this time DOES include initialization now
+    printf("\n");
     printf("**********************************************\n");
-    printf("Completed! t_run = %lf sec \n", t_run); // Notice: this time doesn't include initialization
-
     finalise(); //free allocated memory
     return 0; //exit program
 }
-
 
 
 
@@ -613,12 +586,12 @@ void boundary(int x, int y, int z)
     fn[x][y][z][4] = fn[x][y][z][8];
     fn[x][y][z][8] = tmp;
 
-    if (top_wall_speed != 0) //mouving top wall
+    if (top_wall_speed != 0) //moving top wall
     {
         fn[x][y][z][6] -= top_wall_speed*rho[x][y][z]/6;
         fn[x][y][z][8] += top_wall_speed/rho[x][y][z]/6;
     }
-    if (bot_wall_speed != 0) //mouving bottom wall
+    if (bot_wall_speed != 0) //moving bottom wall
     {
         fn[x][y][z][2] += bot_wall_speed*rho[x][y][z]/6;
         fn[x][y][z][4] -= bot_wall_speed/rho[x][y][z]/6;
@@ -823,19 +796,30 @@ void outputSave()
         writeVTK(t, nx, ny, nz, &rho[0], save_rho, &rho[0], save_pre, &ux[0], &uy[0], &uz[0], save_vel, "output", "openLBMflow");
     #endif
     //check mass conservation for debug only
-    // To be parallelized (but it's needed only for debug)
-    /* Idea: just specify the rank of the process that prints this
-        e.g.: if(rank == 0) */
-    massConservation();
+    #ifdef MASS
+        massConservation();
+    #endif
 
     //Calculate Mega Lattice Site Update per second MLSU/s
     Speed = (nx*ny*nz)*(t-step_now)/((clock() - time_now)/CLOCKS_PER_SEC)/1000000.0;
     step_now = t;
     time_now = clock();
-    if (mass == 0) 
-        printf("t=%d\tSpeed=%f MLUP/s\n", t, Speed);
-    else 
-        printf("t=%d\tSpeed=%f MLUP/s mass=%f\n", t, Speed, mass);
+#pragma omp parallel
+  {
+    int nthr = omp_get_num_threads();
+    #pragma omp single
+    {
+        FILE *fp = fopen("output.txt", "a");
+        #ifdef MASS
+            fprintf(fp,"t = %4d   Speed = %4lf MLUP/s   N_thr = %2d   mass = %lf\n", t, Speed, nthr, mass);
+            printf("t = %4d   Speed = %4lf MLUP/s   N_thr = %2d   mass = %lf\n", t, Speed, nthr, mass);
+        #else 
+            fprintf(fp,"t = %4d   Speed = %4lf MLUP/s   N_thr = %2d\n", t, Speed, nthr);
+            printf("t = %4d   Speed = %4lf MLUP/s   N_thr = %2d\n", t, Speed, nthr);
+        #endif
+        fclose(fp);
+    }
+  }
 
 }
 
