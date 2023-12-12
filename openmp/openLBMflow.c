@@ -415,7 +415,7 @@ void update()
     }
   }
 //////////////////////////////////////////////////////////////////////////////////
-
+#pragma omp parallel for collapse(3) 
     for (x=0; x<nx; x++) // <------------- Parallelize
     {
         for (y=0; y<ny; y++) // <------------- Parallelize
@@ -802,9 +802,9 @@ double**** init_mem_float4d(int nx, int ny, int nz, int nu)
 void outputSave()
 {
     /* TO-DO: Define a parameter in config file to save VTK format or not */
-    // if (vtk)
+    #ifdef VTK
         writeVTK(t, nx, ny, nz, &rho[0], save_rho, &rho[0], save_pre, &ux[0], &uy[0], &uz[0], save_vel, "output", "openLBMflow");
-
+    #endif
     //check mass conservation for debug only
     // To be parallelized (but it's needed only for debug)
     /* Idea: just specify the rank of the process that prints this

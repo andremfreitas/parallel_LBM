@@ -14,11 +14,11 @@ int nx = 32;                //lattice size x
 int ny = 32;                //lattice size y
 int nz = 32;                //lattice size z (only for 3D code)
 double tau = 1.0;           //relaxation time
-double rhoh = 2.6429;       //high density fluid (rhoh=1 for singlephase)
-double rhol = 0.0734;       //low  density fluid (rhoh=1 for singlephase)
+double rhoh = 1.0;       //high density fluid (rhoh=1 for singlephase)
+double rhol = 1.0;       //low  density fluid (rhoh=1 for singlephase)
 double ifaceW = 3.0;        //interface width
-double G = -6.0;            //interparticular interaction potential (G=0 for singlephase)
-double body_force = 2.0e-4;    //gravity force
+double G = 0;            //interparticular interaction potential (G=0 for singlephase)
+double body_force = 0;    //gravity force
 double body_force_dir = 90; //gravity direction (0=down 90=right 180=top 270=left)
 int time_total = 1000;      //total time step
 int time_save = 100;         //save result to VTK image file (*.vti can be open in Paraview)
