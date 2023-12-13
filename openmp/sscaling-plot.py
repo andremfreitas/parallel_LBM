@@ -66,15 +66,17 @@ plotname = case + ".pdf"
 
 fig, ax = plt.subplots(figsize=figsize)
 
-# ax.plot(nthr, speed, "o-", label=r"64x64x64 Grid" )
-ax.errorbar(nthr, speed, speed_err, elinewidth=7, fmt=".-", label=r"64x64x64 Grid", c="tab:purple", linewidth=7,capsize=8,markersize=11 )
+# ax.plot(nthr, speed, "s", c="tab:purple")
+ax.errorbar(nthr, speed, speed_err, elinewidth=3, fmt=".-", label=r"64x64x64 Grid", c="tab:purple", linewidth=3,capsize=4,markersize=4 )
+# ax.errorbar(nthr, speed, speed_err, elinewidth=7, fmt=".", label=r"64x64x64 Grid", c="tab:purple", linewidth=7,capsize=8,markersize=4 )
+
 ax.set_xticks(xticks)
-ax.tick_params(axis = "both", labelsize = ticksize)
+ax.tick_params(axis = "both", labelsize = ticksize, length=5)
 ax.set_ylabel(r"Speed [MLUP/s]", fontsize = labelsize)
 ax.set_xlabel(r"$N_{\mathrm{threads}}$", fontsize = labelsize)
-ax.set_title("Strong scaling", fontsize = titlesize)
+# ax.set_title("Strong scaling", fontsize = titlesize)
 
-ax.legend(fontsize = legendsize)
+ax.legend(fontsize = legendsize, frameon=False)
 
 plt.show()
 fig.savefig(plotname, bbox_inches='tight', facecolor=fig.get_facecolor())
