@@ -179,7 +179,7 @@ void initialize_memory()
 void initialize_boundary(int boundary_bot, int boundary_top, int boundary_lef, int boundary_rig, int boundary_fro, int boundary_bac, double rho_boundary)
 {
     ///Initialize type of nodes
- #pragma omp parallel for collapse(3)
+ //#pragma omp parallel for collapse(3)
     for (x=0; x<nx; x++)
     {
         for (y=0; y<ny; y++)
@@ -192,7 +192,7 @@ void initialize_boundary(int boundary_bot, int boundary_top, int boundary_lef, i
     }
 
     ///Define Bounce Back Boundary
-#pragma omp parallel for collapse(2)  
+//#pragma omp parallel for collapse(2)  
     for (x=0; x<nx; x++)
     {
         for (z=0; z<nz; z++)
@@ -223,7 +223,7 @@ void initialize_boundary(int boundary_bot, int boundary_top, int boundary_lef, i
             }
         }
     }
-#pragma omp parallel for collapse(2)  
+//#pragma omp parallel for collapse(2)  
     for (y=0; y<ny; y++)
     {
         for (z=0; z<nz; z++)
@@ -242,7 +242,7 @@ void initialize_boundary(int boundary_bot, int boundary_top, int boundary_lef, i
             }
         }
     }
-#pragma omp parallel for collapse(2)  
+//#pragma omp parallel for collapse(2)  
     for (x=0; x<nx; x++)
     {
         for (y=0; y<ny; y++)
@@ -265,7 +265,7 @@ void initialize_boundary(int boundary_bot, int boundary_top, int boundary_lef, i
 
 void initialize_density(double density)
 {
-#pragma omp parallel for collapse(3) private(density)     
+//#pragma omp parallel for collapse(3)      
     for (x=0; x<nx; x++)
     {
         for (y=0; y<ny; y++)
@@ -294,7 +294,7 @@ void initialize_distrFunc()
     tmp_uz = 0.0;
 
 
-#pragma omp parallel for collapse(3) private(tmp_ux,tmp_uy,tmp_uz)
+//#pragma omp parallel for collapse(3)  
     for (x=0; x<nx; x++)
     {
         for (y=0; y<ny; y++)
@@ -362,7 +362,7 @@ void update()
 //////////////////////////////////////////////////////////////////////////////////
   //Calculate rho, u,v (macroscopic moments evaluation)
 
-#pragma omp parallel for collapse(3) private(tmp_rho,tmp_ux,tmp_uy,tmp_uz) //reduction(+:tmp_ux,tmp_uy,tmp_uz)
+#pragma omp parallel for collapse(3) private(tmp_rho, tmp_ux, tmp_uy, tmp_uz)
   for (x=0; x<nx; x++) {  // <------------- Parallelize
     for (y=0; y<ny; y++) { // <------------- Parallelize 
       for (z=0; z<nz; z++) { // <------------- Parallelize
@@ -405,7 +405,7 @@ void update()
     }
   }
 //////////////////////////////////////////////////////////////////////////////////
-#pragma omp parallel for collapse(3) private(bot,top,lef,rig,fro,bac,tmp_rho,tmp_phi,tmp_ux,tmp_uy,tmp_uz, ux2, uy2 ,uz2 ,uxy2,uxz2,uyz2,uxy ,uxz ,uyz) 
+#pragma omp parallel for collapse(3) private(tmp_rho, tmp_ux, tmp_uy, tmp_uz, tmp_phi)
     for (x=0; x<nx; x++) // <------------- Parallelize
     {
         for (y=0; y<ny; y++) // <------------- Parallelize
@@ -510,7 +510,7 @@ void update()
         }
     }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma omp parallel for collapse(3) private(tmp_f, fp, fn)  
+#pragma omp parallel for collapse(3) private(tmp_f)  
     for (x=0; x<nx; x++)
     {
         for (y=0; y<ny; y++)
