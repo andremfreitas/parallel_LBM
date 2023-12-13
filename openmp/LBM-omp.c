@@ -179,7 +179,7 @@ void initialize_memory()
 void initialize_boundary(int boundary_bot, int boundary_top, int boundary_lef, int boundary_rig, int boundary_fro, int boundary_bac, double rho_boundary)
 {
     ///Initialize type of nodes
- #pragma omp parallel for collapse(3)  
+ #pragma omp parallel for collapse(3)
     for (x=0; x<nx; x++)
     {
         for (y=0; y<ny; y++)
@@ -265,7 +265,7 @@ void initialize_boundary(int boundary_bot, int boundary_top, int boundary_lef, i
 
 void initialize_density(double density)
 {
-#pragma omp parallel for collapse(3)      
+#pragma omp parallel for collapse(3) private(density)     
     for (x=0; x<nx; x++)
     {
         for (y=0; y<ny; y++)
@@ -294,7 +294,7 @@ void initialize_distrFunc()
     tmp_uz = 0.0;
 
 
-#pragma omp parallel for collapse(3)  
+#pragma omp parallel for collapse(3) private(tmp_ux,tmp_uy,tmp_uz)
     for (x=0; x<nx; x++)
     {
         for (y=0; y<ny; y++)
@@ -330,7 +330,8 @@ void initialize_distrFunc()
 
 
 void initialize_droplet(int dx, int dy, int dz, int dr, int drop)
-{
+{   
+    #pragma omp parallel for collapse(3) private(tmp)
     for (x=0; x<nx; x++)
     {
         for (y=0; y<ny; y++)
@@ -361,7 +362,7 @@ void update()
 //////////////////////////////////////////////////////////////////////////////////
   //Calculate rho, u,v (macroscopic moments evaluation)
 
-#pragma omp parallel for collapse(3) 
+#pragma omp parallel for collapse(3) private(tmp_rho,tmp_ux,tmp_uy,tmp_uz) //reduction(+:tmp_ux,tmp_uy,tmp_uz)
   for (x=0; x<nx; x++) {  // <------------- Parallelize
     for (y=0; y<ny; y++) { // <------------- Parallelize 
       for (z=0; z<nz; z++) { // <------------- Parallelize
@@ -404,7 +405,7 @@ void update()
     }
   }
 //////////////////////////////////////////////////////////////////////////////////
-#pragma omp parallel for collapse(3)  
+#pragma omp parallel for collapse(3) private(bot,top,lef,rig,fro,bac,tmp_rho,tmp_phi,tmp_ux,tmp_uy,tmp_uz, ux2, uy2 ,uz2 ,uxy2,uxz2,uyz2,uxy ,uxz ,uyz) 
     for (x=0; x<nx; x++) // <------------- Parallelize
     {
         for (y=0; y<ny; y++) // <------------- Parallelize
@@ -468,15 +469,16 @@ void update()
 #else
                     uxyz2 = (tmp_ux)*(tmp_ux) + (tmp_uy)*(tmp_uy);
 #endif
-                    ux2 = tmp_ux*tmp_ux;
-                    uy2 = tmp_uy*tmp_uy;
-                    uz2 = tmp_uz*tmp_uz;
+                    ux2  = tmp_ux*tmp_ux;
+                    uy2  = tmp_uy*tmp_uy;
+                    uz2  = tmp_uz*tmp_uz;
                     uxy2 = ux2+uy2;
                     uxz2 = ux2+uz2;
                     uyz2 = uy2+uz2;
-                    uxy = 2.0*tmp_ux*tmp_uy;
-                    uxz = 2.0*tmp_ux*tmp_uz;
-                    uyz = 2.0*tmp_uy*tmp_uz;
+                    uxy  = 2.0*tmp_ux*tmp_uy;
+                    uxz  = 2.0*tmp_ux*tmp_uz;
+                    uyz  = 2.0*tmp_uy*tmp_uz;
+                    
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////                    
 // Collision step
                     tmp_fn[0] = fp[x][y][z][0] - (fp[x][y][z][0] - (wi[0]*tmp_rho*(1.0 - 1.5*uxyz2)))/tau;
@@ -508,7 +510,7 @@ void update()
         }
     }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma omp parallel for collapse(3)   
+#pragma omp parallel for collapse(3) private(tmp_f, fp, fn)  
     for (x=0; x<nx; x++)
     {
         for (y=0; y<ny; y++)
