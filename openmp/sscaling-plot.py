@@ -50,27 +50,28 @@ speed_err = np.array([
 
 # LaTeX font selection
 plt.rcParams.update({
-    "text.usetex": True,
     "font.family": "STIXGeneral",
 })
 
 # Common plot params
 figsize = (10,10)
-labelsize  = 18 + 4
-titlesize  = 20 + 4
-legendsize = 16 + 4
-ticksize   = 16 + 4
+labelsize  = 18 + 7
+titlesize  = 20 + 7
+legendsize = 16 + 7
+ticksize   = 16 + 7
+
+xticks = [1,2,4,8,16]
 
 plotname = case + ".pdf"
 
 fig, ax = plt.subplots(figsize=figsize)
 
 # ax.plot(nthr, speed, "o-", label=r"64x64x64 Grid" )
-ax.errorbar(nthr, speed, speed_err, elinewidth=2, fmt=".-", label=r"64x64x64 Grid", c="tab:purple" )
-
+ax.errorbar(nthr, speed, speed_err, elinewidth=7, fmt=".-", label=r"64x64x64 Grid", c="tab:purple", linewidth=7,capsize=8,markersize=11 )
+ax.set_xticks(xticks)
 ax.tick_params(axis = "both", labelsize = ticksize)
 ax.set_ylabel(r"Speed [MLUP/s]", fontsize = labelsize)
-ax.set_xlabel(r"$N_{\mathrm{thr}}$", fontsize = labelsize)
+ax.set_xlabel(r"$N_{\mathrm{threads}}$", fontsize = labelsize)
 ax.set_title("Strong scaling", fontsize = titlesize)
 
 ax.legend(fontsize = legendsize)
