@@ -1,4 +1,3 @@
-==============================================================
 Parallel extension of openLBMflow (https://github.com/wme7/openLBMflow)
 --------------------------------------------------------------
 Project #3 of AQTIVATE workshop "Exascale computing and scalable algorithms”.
