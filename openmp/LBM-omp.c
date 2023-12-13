@@ -173,7 +173,7 @@ void initialize_memory()
     G = 0.0;
 #endif
 
-    write_collection_pvd(t, nx, ny, nz, &rho[0], "output", "openLBMflow");
+    write_collection_pvd(t, nx, ny, nz, &rho[0], "output", "parallel-LBM");
 }
 
 void initialize_boundary(int boundary_bot, int boundary_top, int boundary_lef, int boundary_rig, int boundary_fro, int boundary_bac, double rho_boundary)
@@ -793,9 +793,8 @@ double**** init_mem_float4d(int nx, int ny, int nz, int nu)
 // Definetely not fine: either use MPI_Gather or have the different processes write to file their parts
 void outputSave()
 {
-    /* TO-DO: Define a parameter in config file to save VTK format or not */
     #ifdef VTK
-        writeVTK(t, nx, ny, nz, &rho[0], save_rho, &rho[0], save_pre, &ux[0], &uy[0], &uz[0], save_vel, "output", "openLBMflow");
+        writeVTK(t, nx, ny, nz, &rho[0], save_rho, &rho[0], save_pre, &ux[0], &uy[0], &uz[0], save_vel, "output", "parallel-LBM");
     #endif
     //check mass conservation for debug only
     #ifdef MASS
@@ -803,23 +802,27 @@ void outputSave()
     #endif
 
     //Calculate Mega Lattice Site Update per second MLSU/s
-    Speed = (nx*ny*nz)*(t-step_now)/((clock() - time_now)/CLOCKS_PER_SEC)/1000000.0;
+    Speed = (nx*ny*nz)*(t-step_now)/((clock() - time_now)/CLOCKS_PER_SEC)/1e6;
     step_now = t;
     time_now = clock();
+
+    char outputFileName[255];
+    sprintf(outputFileName, "output/nx%d_ny%d_nz%d.txt", nx, ny, nz);
+    FILE *fh = fopen(outputFileName, "w");
+    
 #pragma omp parallel
   {
     int nthr = omp_get_num_threads();
     #pragma omp single
     {
-        FILE *fp = fopen("output.txt", "a");
         #ifdef MASS
-            fprintf(fp,"t = %4d   Speed = %4lf MLUP/s   N_thr = %2d   mass = %lf\n", t, Speed, nthr, mass);
+            fprintf(fh,"t = %4d   Speed = %4lf MLUP/s   N_thr = %2d   mass = %lf\n", t, Speed, nthr, mass);
             printf("t = %4d   Speed = %4lf MLUP/s   N_thr = %2d   mass = %lf\n", t, Speed, nthr, mass);
         #else 
-            fprintf(fp,"t = %4d   Speed = %4lf MLUP/s   N_thr = %2d\n", t, Speed, nthr);
-            printf("t = %4d   Speed = %4lf MLUP/s   N_thr = %2d\n", t, Speed, nthr);
+            fprintf(fh,"t = %4d   Speed = %4lf MLUP/s   N_thr = %2d   \n", t, Speed, nthr);
+            printf("t = %4d   Speed = %4lf MLUP/s   N_thr = %2d   \n", t, Speed, nthr);
         #endif
-        fclose(fp);
+        fclose(fh);
     }
   }
 
