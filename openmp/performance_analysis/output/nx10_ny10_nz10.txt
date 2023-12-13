@@ -1,0 +1,1 @@
+t = 5000   Speed = 1.742432 MLUP/s   N_thr =  2   mass = 1000.090992

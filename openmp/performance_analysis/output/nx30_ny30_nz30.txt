@@ -1,0 +1,1 @@
+t =  600   Speed = 1.549731 MLUP/s   N_thr =  4   mass = 26999.639782

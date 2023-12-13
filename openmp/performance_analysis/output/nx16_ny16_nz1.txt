@@ -1,0 +1,1 @@
+t = 1000   Speed = 8.846118 MLUP/s   N_thr =  8   mass = 256.000000
