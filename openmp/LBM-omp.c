@@ -802,9 +802,11 @@ void outputSave()
     #endif
 
     //Calculate Mega Lattice Site Update per second MLSU/s
-    Speed = (nx*ny*nz)*(t-step_now)/((clock() - time_now)/CLOCKS_PER_SEC)/1e6;
+    Speed = (nx*ny*nz)*(t-step_now)/((stop_watch(0) - time_now))/1e6;
+    time_now = stop_watch(0);
     step_now = t;
-    time_now = clock();
+    // Speed = (nx*ny*nz)*(t-step_now)/((clock() - time_now)/CLOCKS_PER_SEC)/1e6;
+    // time_now = clock();
 
     char outputFileName[255];
     sprintf(outputFileName, "output/nx%d_ny%d_nz%d.txt", nx, ny, nz);
